@@ -1,15 +1,14 @@
 package organizacion;
-
-import java.util.Hashtable;
+import java.util.ArrayList;
 
 public class Artista
 {
 	private String Ruta;
-	private Hashtable<String, String> Albumes;
+	private ArrayList<String> Albumes;
 	
 	public Artista() {}
 	
-	public Artista(String ruta, Hashtable<String, String> albumes)
+	public Artista(String ruta, ArrayList<String> albumes)
 	{
 		Ruta = ruta;
 		Albumes = albumes;
@@ -27,17 +26,17 @@ public class Artista
 	
 	public boolean validaAlbum(String album)
 	{
-		if(Albumes.containsKey(album))
+		if(Albumes.contains(album))
 			return true;
 		else
 			return false;
 	}
 	public String getRutaAlbum(String album)
 	{
-		return Albumes.get(album);
+		return Ruta + "/" + album;
 	}
 	public void agregarAlbum(String album, String ruta)
 	{
-		Albumes.put(album, ruta);
+		Albumes.add(album);
 	}
 }
