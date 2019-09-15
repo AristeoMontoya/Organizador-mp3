@@ -3,7 +3,6 @@ package organizacion;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import org.farng.mp3.MP3File;
 import org.farng.mp3.TagException;
 import org.farng.mp3.id3.ID3v1;
@@ -12,14 +11,12 @@ public class Proceso
 {
 	public static void Iniciar_proceso(String directorio) throws ClassNotFoundException, IOException, TagException
 	{
-		ArrayList<Artista> artistas;
 		System.out.println("Todo jaló según lo planeado");
 		System.out.println("directorio: " + directorio);
-		artistas = new ArrayList<Artista>();
-		organizarMP3(directorio, artistas);
+		organizarMP3(directorio);
 	}
 
-	public static void organizarMP3(String directorio, ArrayList<Artista> artistas) throws IOException, TagException
+	public static void organizarMP3(String directorio) throws IOException, TagException
 	{
 		File carpeta = new File(directorio);
 		String artista_actual, album_actual;
