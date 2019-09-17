@@ -11,15 +11,11 @@ public class Proceso
 {
 	public static void Iniciar_proceso(String directorio) throws ClassNotFoundException, IOException, TagException
 	{
-		System.out.println("Todo jaló según lo planeado");
-		System.out.println("directorio: " + directorio);
-		organizarMP3(directorio);
-	}
-
-	public static void organizarMP3(String directorio) throws IOException, TagException
-	{
-		File carpeta = new File(directorio);
+		File directorio_raiz = new File(directorio);
+		File directorio_artista;
+		File directorio_album;
 		String artista_actual, album_actual;
+		boolean existencia_artista = false, existencia_album = false;
 		FileFilter filtro = new FileFilter()
 		{
 
@@ -33,43 +29,35 @@ public class Proceso
 			}
 		};
 
-		File archivos[] = carpeta.listFiles(filtro);
+		File archivos[] = directorio_raiz.listFiles(filtro);
 		MP3File cancion;
 		ID3v1 etiquetas;
 		for (int i = 0; i < archivos.length; i++)
 		{
 			cancion = new MP3File(archivos[i]);
 			etiquetas = cancion.getID3v1Tag();
-			String invalidos = "[:?////]";
+			String invalidos = "[\\\\\\\\/:*?\\\"<>|]";
+
 			artista_actual = etiquetas.getLeadArtist();
 			album_actual = etiquetas.getAlbumTitle().replaceAll(invalidos, " ");
-			
-			carpeta = new File(directorio + "/" + artista_actual);
-			if (carpeta.exists())
+
+			directorio_artista = new File(directorio + "/" + artista_actual);
+			directorio_album = new File(directorio_artista.getPath() + "/" + album_actual);
+
+			existencia_artista = directorio_artista.exists();
+			existencia_album = directorio_album.exists();
+
+			if (!existencia_artista)
 			{
-				carpeta = new File(directorio + "/" + artista_actual + "/" + album_actual);
-				if(carpeta.exists())
-				{
-					carpeta = new File(carpeta.getPath() + "/" + archivos[i].getName());
-					archivos[i].renameTo(carpeta);
-				}
-				else
-				{
-					carpeta = new File(carpeta.getPath());
-					carpeta.mkdir();
-					carpeta = new File(carpeta.getPath() + "/" + archivos[i].getName());
-					archivos[i].renameTo(carpeta);
-				}
+				directorio_artista.mkdir();
 			}
-			else
+			if (!existencia_album)
 			{
-				carpeta.mkdir();
-				carpeta = new File(directorio + "/" + artista_actual + "/" + album_actual);
-				carpeta.mkdir();
-				carpeta = new File(carpeta.getPath() + "/" + archivos[i].getName());
-				archivos[i].renameTo(carpeta);
+				directorio_album.mkdir();
 			}
+
+			archivos[i].renameTo(new File(directorio_album + "/" + archivos[i].getName()));
 		}
 	}
-	
+
 }
