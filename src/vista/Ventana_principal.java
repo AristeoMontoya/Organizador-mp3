@@ -112,6 +112,7 @@ public class Ventana_principal extends JFrame implements ActionListener
 				} catch (IOException | TagException e1)
 				{
 					JOptionPane.showMessageDialog(this, "Error al ordenar archivos", "Error", JOptionPane.ERROR_MESSAGE);
+					e1.printStackTrace();
 				}
 			}
 		}
