@@ -109,16 +109,9 @@ public class Ventana_principal extends JFrame implements ActionListener
 				try
 				{
 					organizacion.Proceso.Iniciar_proceso(directorio);
-				} catch (ClassNotFoundException e1)
+				} catch (IOException | TagException e1)
 				{
-					e1.printStackTrace();
-				} catch (IOException e1)
-				{
-					e1.printStackTrace();
-				} catch (TagException e1)
-				{
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					JOptionPane.showMessageDialog(this, "Error al ordenar archivos", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		}
