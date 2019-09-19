@@ -5,8 +5,16 @@ public class App_organizador
 
 	public static void main(String[] args)
 	{
-		vista.Ventana_principal ventana = new vista.Ventana_principal();
-		ventana.setVisible(true);
+		javax.swing.SwingUtilities.invokeLater(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				vista.Ventana_principal ventana = new vista.Ventana_principal();
+				ventana.setVisible(true);
+			}
+		});
 	}
 
 }

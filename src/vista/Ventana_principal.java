@@ -5,7 +5,6 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
@@ -15,8 +14,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-
-import org.farng.mp3.TagException;
 
 public class Ventana_principal extends JFrame implements ActionListener
 {
@@ -103,19 +100,17 @@ public class Ventana_principal extends JFrame implements ActionListener
 			if (directorio == null)
 			{
 				JOptionPane.showMessageDialog(this, "No hay ningún directorio seleccionado", "Aviso", JOptionPane.PLAIN_MESSAGE);
-			} 
-			else
+			} else
 			{
-				try
-				{
-					organizacion.Proceso.Iniciar_proceso(directorio);
-				} catch (IOException | TagException e1)
-				{
-					JOptionPane.showMessageDialog(this, "Error al ordenar archivos", "Error", JOptionPane.ERROR_MESSAGE);
-					e1.printStackTrace();
-				}
+				organizacion.Proceso organizacion = new organizacion.Proceso(directorio);
+				organizacion.execute();
+
+				btn_iniciar.setEnabled(false);
+				btn_iniciar.setEnabled(true);
+				JOptionPane.showMessageDialog(this, "Proceso completado", "aviso", JOptionPane.PLAIN_MESSAGE);
+
 			}
 		}
-
 	}
+
 }
