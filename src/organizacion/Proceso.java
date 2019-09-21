@@ -11,7 +11,7 @@ import org.farng.mp3.id3.ID3v1;
 import org.farng.mp3.id3.ID3v2_4;
 
 @SuppressWarnings("rawtypes")
-public class Proceso extends SwingWorker
+public class Proceso extends SwingWorker<Void, Void>
 {
 	private String Directorio;
 
@@ -21,7 +21,7 @@ public class Proceso extends SwingWorker
 	}
 
 	@Override
-	public Object doInBackground() throws Exception
+	public Void doInBackground() throws Exception
 	{
 
 		File directorio_raiz = new File(Directorio);
@@ -105,6 +105,10 @@ public class Proceso extends SwingWorker
 		monitor.setNote("Tarea terminada");
 		monitor.setProgress(archivos.length);
 		return null;
+	}
+	
+	protected void done()
+	{
 	}
 
 }

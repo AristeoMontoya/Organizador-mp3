@@ -5,6 +5,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
@@ -15,7 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-public class Ventana_principal extends JFrame implements ActionListener
+public class Ventana_principal extends JFrame implements ActionListener, PropertyChangeListener
 {
 	private static final long serialVersionUID = -1728127814990949063L;
 
@@ -24,6 +26,8 @@ public class Ventana_principal extends JFrame implements ActionListener
 	private JTextField txt_directorio;
 	private JFileChooser File_Chooser;
 	private String directorio;
+	private boolean bandera_proceso;
+	private organizacion.Proceso organizacion;
 
 	public Ventana_principal()
 	{
@@ -102,13 +106,31 @@ public class Ventana_principal extends JFrame implements ActionListener
 				JOptionPane.showMessageDialog(this, "No hay ningún directorio seleccionado", "Aviso", JOptionPane.PLAIN_MESSAGE);
 			} else
 			{
-				organizacion.Proceso organizacion = new organizacion.Proceso(directorio);
+				organizacion = new organizacion.Proceso(directorio);
+				organizacion.addPropertyChangeListener(this);
+				bandera_proceso = false;
 				organizacion.execute();
-
+				
 				btn_iniciar.setEnabled(false);
+			}
+		}
+	}
+	
+	public void propertyChange(PropertyChangeEvent e)
+	{
+		if(e.getSource() == organizacion)
+		{
+			if(organizacion.isDone() && !bandera_proceso)
+			{
+				JOptionPane.showMessageDialog(this, "Proceso completado", "aviso", JOptionPane.PLAIN_MESSAGE);				
 				btn_iniciar.setEnabled(true);
-				JOptionPane.showMessageDialog(this, "Proceso completado", "aviso", JOptionPane.PLAIN_MESSAGE);
-
+				bandera_proceso = true;
+			}
+			else if(organizacion.isCancelled() && !bandera_proceso)
+			{
+				JOptionPane.showMessageDialog(this, "Proceso cancelado", "aviso", JOptionPane.PLAIN_MESSAGE);				
+				btn_iniciar.setEnabled(true);
+				bandera_proceso = true;
 			}
 		}
 	}
