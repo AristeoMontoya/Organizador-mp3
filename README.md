@@ -1,4 +1,4 @@
 # Organizador-mp3
-Pequeño programa de Java que organiza archivos MP3 por álbum y artista.
+Programa hecho en Java para organizar de forma automática todos los archivos MP3 ubicados en una carpeta de manera automática por artista y álbum.
 
-Utiliza la librería Java ID3 para leer las etiquetas de los archivos MP3.
+Los metadatos son extraídos del archivo MP3.
