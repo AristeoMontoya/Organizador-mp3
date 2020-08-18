@@ -1,27 +1,17 @@
 package vista;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.imageio.ImageIO;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
 
-public class Ventana_principal extends JFrame implements ActionListener, PropertyChangeListener
-{
+public class Ventana_principal extends JFrame implements PropertyChangeListener {
 	private static final long serialVersionUID = -1728127814990949063L;
 
-	private JLabel lbl_banner;
 	private JButton btn_seleccionar_directorio, btn_iniciar;
 	private JTextField txt_directorio;
 	private JFileChooser File_Chooser;
@@ -29,9 +19,13 @@ public class Ventana_principal extends JFrame implements ActionListener, Propert
 	private boolean bandera_proceso;
 	private organizacion.Proceso organizacion;
 
-	public Ventana_principal()
-	{
-		setTitle("Organizador de música");
+	public Ventana_principal() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		setTitle("Organizador de mÃºsica");
 		setSize(575, 97);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -39,15 +33,12 @@ public class Ventana_principal extends JFrame implements ActionListener, Propert
 		iniciar();
 	}
 
-	public void iniciar()
-	{
-		try
-		{
+	public void iniciar() {
+		try {
 			InputStream imageInputStream = this.getClass().getResourceAsStream("/recursos/round_headset_black_18dp.png");
 			BufferedImage bufferedImage = ImageIO.read(imageInputStream);
 			this.setIconImage(bufferedImage);
-		} catch (IOException exception)
-		{
+		} catch (IOException exception) {
 			exception.printStackTrace();
 		}
 
@@ -57,14 +48,12 @@ public class Ventana_principal extends JFrame implements ActionListener, Propert
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 
-		lbl_banner = new JLabel("Bienvenido. Elige el directorio a ordenar");
-
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.gridwidth = 1;
 		gbc.weightx = 1.0;
 		gbc.gridwidth = 2;
-		this.add(lbl_banner, gbc);
+		this.add(new JLabel("Bienvenido. Elige el directorio a ordenar."), gbc);
 		gbc.gridwidth = 1;
 
 		txt_directorio = new JTextField("Directorio: ");
@@ -75,64 +64,48 @@ public class Ventana_principal extends JFrame implements ActionListener, Propert
 
 		gbc.weightx = 0.0;
 		btn_seleccionar_directorio = new JButton("...");
-		btn_seleccionar_directorio.addActionListener(this);
+		btn_seleccionar_directorio.addActionListener(e -> seleccionarDirectorio());
 		gbc.gridx = 1;
 		this.add(btn_seleccionar_directorio, gbc);
 
 		btn_iniciar = new JButton("Iniciar ordenamiento");
-		btn_iniciar.addActionListener(this);
+		btn_iniciar.addActionListener(e -> iniciarProceso());
 		gbc.gridy = 2;
 		gbc.gridx = 0;
 		gbc.gridwidth = 2;
 		this.add(btn_iniciar, gbc);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-		if (e.getSource() == btn_seleccionar_directorio)
-		{
-			if (File_Chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-			{
-				directorio = "" + File_Chooser.getSelectedFile();
-				txt_directorio.setText(directorio);
-			}
-		}
-
-		if (e.getSource() == btn_iniciar)
-		{
-			if (directorio == null)
-			{
-				JOptionPane.showMessageDialog(this, "No hay ningún directorio seleccionado", "Aviso", JOptionPane.PLAIN_MESSAGE);
-			} else
-			{
-				organizacion = new organizacion.Proceso(directorio);
-				organizacion.addPropertyChangeListener(this);
-				bandera_proceso = false;
-				organizacion.execute();
-				
-				btn_iniciar.setEnabled(false);
-			}
+	public void seleccionarDirectorio() {
+		if (File_Chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			directorio = "" + File_Chooser.getSelectedFile();
+			txt_directorio.setText(directorio);
 		}
 	}
-	
-	public void propertyChange(PropertyChangeEvent e)
-	{
-		if(e.getSource() == organizacion)
-		{
-			if(organizacion.isDone() && !bandera_proceso)
-			{
-				JOptionPane.showMessageDialog(this, "Proceso completado", "aviso", JOptionPane.PLAIN_MESSAGE);				
+
+	public void iniciarProceso() {
+		if (directorio == null) {
+			JOptionPane.showMessageDialog(this, "No hay ningÃºn directorio seleccionado", "Aviso", JOptionPane.PLAIN_MESSAGE);
+		} else {
+			organizacion = new organizacion.Proceso(directorio);
+			organizacion.addPropertyChangeListener(this);
+			bandera_proceso = false;
+			organizacion.execute();
+			btn_iniciar.setEnabled(false);
+		}
+	}
+
+	public void propertyChange(PropertyChangeEvent e) {
+		if (e.getSource() == organizacion) {
+			if (organizacion.isDone() && !bandera_proceso) {
+				JOptionPane.showMessageDialog(this, "Proceso completado", "aviso", JOptionPane.PLAIN_MESSAGE);
 				btn_iniciar.setEnabled(true);
 				bandera_proceso = true;
-			}
-			else if(organizacion.isCancelled() && !bandera_proceso)
-			{
-				JOptionPane.showMessageDialog(this, "Proceso cancelado", "aviso", JOptionPane.PLAIN_MESSAGE);				
+			} else if (organizacion.isCancelled() && !bandera_proceso) {
+				JOptionPane.showMessageDialog(this, "Proceso cancelado", "aviso", JOptionPane.PLAIN_MESSAGE);
 				btn_iniciar.setEnabled(true);
 				bandera_proceso = true;
 			}
 		}
 	}
-
 }

@@ -1,104 +1,72 @@
 package organizacion;
 
+import com.mpatric.mp3agic.Mp3File;
+import javax.swing.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import javax.swing.ProgressMonitor;
-import javax.swing.SwingWorker;
-import org.farng.mp3.MP3File;
-import org.farng.mp3.TagException;
-import org.farng.mp3.id3.ID3v1;
-import org.farng.mp3.id3.ID3v2_4;
 
-@SuppressWarnings("rawtypes")
-public class Proceso extends SwingWorker<Void, Void>
-{
-	private String Directorio;
+public class Proceso extends SwingWorker<Void, Void> {
+	private final String Directorio;
 
-	public Proceso(String directorio)
-	{
+	public Proceso(String directorio) {
 		Directorio = directorio;
 	}
 
 	@Override
-	public Void doInBackground() throws Exception
-	{
-
+	public Void doInBackground() {
 		File directorio_raiz = new File(Directorio);
 		File directorio_artista;
 		File directorio_album;
-		String artista_actual, album_actual, invalidos = "[\\\\\\\\/:*?\\\"<>|]";
+		String artista_actual, album_actual, invalidos = "[\\\\/:*?\"<>|]";
+		Mp3File cancion;
 
-		MP3File cancion;
+		FileFilter filtro = pathname -> pathname.getName().endsWith(".mp3");
 
-		ID3v1 etiquetasv1;
-		ID3v2_4 etiquetasv4;
-
-		FileFilter filtro = new FileFilter()
-		{
-
-			@Override
-			public boolean accept(File pathname)
-			{
-				if (pathname.getName().endsWith(".mp3"))
-					return true;
-				else
-					return false;
-			}
-		};
-
-		File archivos[] = directorio_raiz.listFiles(filtro);
+		File[] archivos = directorio_raiz.listFiles(filtro);
 		ProgressMonitor monitor = new ProgressMonitor(null, "Trabajando en ello", "Comenzando", 0, archivos.length);
 
 		monitor.setMillisToDecideToPopup(10);
 		monitor.setMillisToPopup(10);
 
-		for (int i = 0; i < archivos.length; i++)
-		{
+		for (int i = 0; i < archivos.length; i++) {
 
-			try
-			{
-				cancion = new MP3File(archivos[i]);
+			try {
+				cancion = new Mp3File(archivos[i]);
 				monitor.setNote(archivos[i].getName());
 				monitor.setProgress(i);
-				etiquetasv1 = cancion.getID3v1Tag();
-				etiquetasv4 = new ID3v2_4(cancion.getID3v2Tag());
 
-				try
-				{
-					artista_actual = etiquetasv1.getArtist();
-				} catch (NullPointerException e)
-				{
-					artista_actual = etiquetasv4.getLeadArtist();
-				}
-
-				try
-				{
-					album_actual = etiquetasv1.getAlbum().replaceAll(invalidos, " ");
-				} catch (NullPointerException e)
-				{
-					album_actual = etiquetasv4.getAlbumTitle().replaceAll(invalidos, " ");
+				if (cancion.hasId3v1Tag()) {
+					artista_actual = cancion.getId3v1Tag().getArtist();
+					album_actual = cancion.getId3v1Tag().getAlbum().replaceAll(invalidos, " ");
+				} else {
+					artista_actual = cancion.getId3v2Tag().getArtist();
+					album_actual = cancion.getId3v2Tag().getAlbum().replaceAll(invalidos, " ");
 				}
 
 				directorio_artista = new File(Directorio + "/" + artista_actual);
 				directorio_album = new File(directorio_artista.getPath() + "/" + album_actual);
 
-				if (!directorio_artista.exists())
-				{
-					directorio_artista.mkdir();
+				if (!directorio_artista.exists()) {
+					if (!directorio_artista.mkdir()) {
+						System.out.println("No se creó directorio para artista: " + artista_actual);
+						System.out.println(directorio_artista);
+						char c = artista_actual.charAt(0);
+						System.out.println("Caracter: " + (int) c);
+					}
 				}
-				if (!directorio_album.exists())
-				{
-					directorio_album.mkdir();
+				if (!directorio_album.exists()) {
+					if (!directorio_album.mkdir()) {
+						System.out.println("No se creó directorio para álbum: " + album_actual);
+						System.out.println(directorio_album);
+					}
 				}
 
 				archivos[i].renameTo(new File(directorio_album + "/" + archivos[i].getName()));
 
-			} catch (IOException e1)
-			{
+			} catch (IOException e1) {
 				e1.printStackTrace();
-			} catch (TagException e1)
-			{
+			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		}
@@ -106,9 +74,4 @@ public class Proceso extends SwingWorker<Void, Void>
 		monitor.setProgress(archivos.length);
 		return null;
 	}
-	
-	protected void done()
-	{
-	}
-
 }
